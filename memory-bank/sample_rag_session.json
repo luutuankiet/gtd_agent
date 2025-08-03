@@ -1,0 +1,78 @@
+[
+  {
+    "name": "execute_tool retrieve_documents",
+    "span_id": 7004683838854430000,
+    "trace_id": 2.695655433345497e+38,
+    "start_time": 1754209840790135600,
+    "end_time": 1754209840821934600,
+    "attributes": {
+      "gen_ai.system": "gcp.vertex.agent",
+      "gen_ai.operation.name": "execute_tool",
+      "gen_ai.tool.name": "retrieve_documents",
+      "gen_ai.tool.description": "Retrieves relevant documents from the ChromaDB vector store based on the query.",
+      "gen_ai.tool.call.id": "tool_0_retrieve_documents",
+      "gcp.vertex.agent.tool_call_args": "{\"query\": \"integrations with dbt in Lightdash\"}",
+      "gcp.vertex.agent.event_id": "a4801f04-fa20-4bfc-b329-2a201e129a80",
+      "gcp.vertex.agent.tool_response": "{\"result\": \"Adding Tables to your Lightdash project using the CLI\\n\\nStep 1. Install the Lightdash CLI\\n\\nThe Lightdash CLI is the recommended way to develop your dbt + Lightdash project. It makes development faster and easier, as well as giving you options for building more powerful automation to manage your Lightdash instance. If you haven’t installed the Lightdash CLI yet, then follow this guide to installing and setting it up, then come back to these docs once you’re ready!\\n\\nStep 2. Add Tables to Lightdash\\n\\nYou’ll do this using lightdash dbt run -s my_model. Before you get started with the next steps, you might want to check out onto a new branch. To get a model in dbt Lightdash-ready, we need to define all of the columns that we want to explore in Lightdash. We’ve made this really easy to do using our CLI tool and the command: Copy Ask AI\\n\\nlightdash dbt run -s my_model\\n\\ndbt Projects - Lightdash\\n\\nSource: https://docs.lightdash.com/references/dbt-projects\\n\\nLightdash home page Search... Ctrl KAsk AI Search... Navigation Integrations dbt Projects\\n\\nIntroduction\\n\\nWelcome to Lightdash\\n\\nSetting up a new project\\n\\nExplore and analyze\\n\\nQuickstart\\n\\nGuides\\n\\nReference\\n\\nBuild your semantic layer\\n\\nDeveloper quickstart\\n\\nCLI quickstart\\n\\nGuides\\n\\nReference\\n\\nWorkspace and user management\\n\\nGuides\\n\\nReference\\n\\nIntegrations\\n\\nEmbedding and SDKs\\n\\nEmbedding quickstart\\n\\nEmbedding reference\\n\\nSelf-hosting and deployment\\n\\nSelf-Host Lightdash\\n\\nLightdash Cloud vs. Self-Hosted\\n\\nUpdating Lightdash\\n\\nCustomize deployment\\n\\nContact\\n\\nOn this page * Syncing your dbt project to Lightdash * 1. Set up continous deployment * 2. Click ŌĆ£Refresh dbtŌĆØ in Lightdash * 3. Push code from the CLI * dbt project settings * Environment variables\\n\\nLightdash supports dbt v1.4.0 and above. If you are using an older version of dbt, you will need to upgrade to sync your project to Lightdash\\n\\nWhat are Tables?\\n\\nTables are the starting point to any data exploration in Lightdash - they’re the data in Lightdash that you can query. The beauty of Lightdash is that we’re pretty well synced with your dbt project. So, in Lightdash, Tables actually come from dbt models that have been defined in your dbt project’s YAML files. If your dbt model has been defined in a YAML file, it will appear in Lightdash as a Table. Not sure what a YAML file is? Check out dbt’s docs about model properties to learn more about adding YAML files for your dbt models.\\n\\nAdding Tables to your Lightdash project using the CLI\\n\\nStep 1. Install the Lightdash CLI\\n\\nSyncing your dbt project to Lightdash\\n\\nYou can sync your dbt project code with Lightdash in a few different ways. We recommend everyone set up continuous deployment, but you can also refresh in the Lightdash app or deploy from the CLI.\\n\\n1. Set up continous deployment\\n\\nRead how to do that and check out our example workflow files.\\n\\n2. Click ŌĆ£Refresh dbtŌĆØ in Lightdash\\n\\nThe button can be found on the Query from tables page. If youŌĆÖre using a git connection (like GitHub, Gitlab or Bitbucket), youŌĆÖll need to push + merge your changes to the branch that your Lightdash project is connected to before you pressRefresh dbt. If youŌĆÖve made any changes to the underlying data (for example, adding a new column in your model.sql file or changing the SQL logic of a dimension), then you need to run: dbt run -m yourmodel before you click Refresh dbt in Lightdash.\\n\\n3. Push code from the CLI\"}",
+      "gcp.vertex.agent.llm_request": "{}",
+      "gcp.vertex.agent.llm_response": "{}"
+    },
+    "parent_span_id": 18004206349077907000
+  },
+  {
+    "name": "call_llm",
+    "span_id": 18004206349077907000,
+    "trace_id": 2.695655433345497e+38,
+    "start_time": 1754209839557575700,
+    "end_time": 1754209840822443500,
+    "attributes": {
+      "gen_ai.system": "gcp.vertex.agent",
+      "gen_ai.request.model": "openrouter/google/gemini-2.5-flash-lite-preview-06-17",
+      "gcp.vertex.agent.invocation_id": "e-7f50d5de-f346-4ea2-90e7-4831b6ef1d7a",
+      "gcp.vertex.agent.session_id": "36eea148-e859-4e4e-b818-95855a332d6d",
+      "gcp.vertex.agent.event_id": "6e3a656d-7d28-4a13-a49e-8e216d2bdb63",
+      "gcp.vertex.agent.llm_request": "{\"model\": \"openrouter/google/gemini-2.5-flash-lite-preview-06-17\", \"config\": {\"system_instruction\": \"You are a helpful assistant.\\n    You have access to a document retrieval tool. Use this tool when the user asks a question that requires information from the knowledge base.\\n    For example, if the user asks about a specific concept or detail, use the `retrieve_documents` tool with a relevant query to get information from the documents.\\n    Then, use the retrieved information to answer the user's question.\\n    \\n\\nYou are an agent. Your internal name is \\\"root_agent\\\".\\n\\n The description about you is \\\"I am an assistant.\\\"\", \"tools\": [{\"function_declarations\": [{\"description\": \"\\n    Retrieves relevant documents from the ChromaDB vector store based on the query.\\n    \", \"name\": \"retrieve_documents\", \"parameters\": {\"properties\": {\"query\": {\"type\": \"STRING\"}}, \"required\": [\"query\"], \"type\": \"OBJECT\"}}]}], \"labels\": {\"adk_agent_name\": \"root_agent\"}}, \"contents\": [{\"parts\": [{\"text\": \"in lightdash what are some ways to integrate with dbt ? \"}], \"role\": \"user\"}]}",
+      "gcp.vertex.agent.llm_response": "{\"content\":{\"parts\":[{\"function_call\":{\"id\":\"tool_0_retrieve_documents\",\"args\":{\"query\":\"integrations with dbt in Lightdash\"},\"name\":\"retrieve_documents\"}}],\"role\":\"model\"},\"partial\":false,\"usage_metadata\":{\"candidates_token_count\":12,\"prompt_token_count\":153,\"total_token_count\":165}}",
+      "gen_ai.usage.input_tokens": 153,
+      "gen_ai.usage.output_tokens": 165
+    },
+    "parent_span_id": 5760490209297376000
+  },
+  {
+    "name": "call_llm",
+    "span_id": 2902500501414284300,
+    "trace_id": 2.695655433345497e+38,
+    "start_time": 1754209840824264000,
+    "end_time": 1754209842413351400,
+    "attributes": {
+      "gen_ai.system": "gcp.vertex.agent",
+      "gen_ai.request.model": "openrouter/google/gemini-2.5-flash-lite-preview-06-17",
+      "gcp.vertex.agent.invocation_id": "e-7f50d5de-f346-4ea2-90e7-4831b6ef1d7a",
+      "gcp.vertex.agent.session_id": "36eea148-e859-4e4e-b818-95855a332d6d",
+      "gcp.vertex.agent.event_id": "3bf2bb90-c39f-47d8-b4dc-a8c3badfde21",
+      "gcp.vertex.agent.llm_request": "{\"model\": \"openrouter/google/gemini-2.5-flash-lite-preview-06-17\", \"config\": {\"system_instruction\": \"You are a helpful assistant.\\n    You have access to a document retrieval tool. Use this tool when the user asks a question that requires information from the knowledge base.\\n    For example, if the user asks about a specific concept or detail, use the `retrieve_documents` tool with a relevant query to get information from the documents.\\n    Then, use the retrieved information to answer the user's question.\\n    \\n\\nYou are an agent. Your internal name is \\\"root_agent\\\".\\n\\n The description about you is \\\"I am an assistant.\\\"\", \"tools\": [{\"function_declarations\": [{\"description\": \"\\n    Retrieves relevant documents from the ChromaDB vector store based on the query.\\n    \", \"name\": \"retrieve_documents\", \"parameters\": {\"properties\": {\"query\": {\"type\": \"STRING\"}}, \"required\": [\"query\"], \"type\": \"OBJECT\"}}]}], \"labels\": {\"adk_agent_name\": \"root_agent\"}}, \"contents\": [{\"parts\": [{\"text\": \"in lightdash what are some ways to integrate with dbt ? \"}], \"role\": \"user\"}, {\"parts\": [{\"function_call\": {\"id\": \"tool_0_retrieve_documents\", \"args\": {\"query\": \"integrations with dbt in Lightdash\"}, \"name\": \"retrieve_documents\"}}], \"role\": \"model\"}, {\"parts\": [{\"function_response\": {\"id\": \"tool_0_retrieve_documents\", \"name\": \"retrieve_documents\", \"response\": {\"result\": \"Adding Tables to your Lightdash project using the CLI\\n\\nStep 1. Install the Lightdash CLI\\n\\nThe Lightdash CLI is the recommended way to develop your dbt + Lightdash project. It makes development faster and easier, as well as giving you options for building more powerful automation to manage your Lightdash instance. If you haven’t installed the Lightdash CLI yet, then follow this guide to installing and setting it up, then come back to these docs once you’re ready!\\n\\nStep 2. Add Tables to Lightdash\\n\\nYou’ll do this using lightdash dbt run -s my_model. Before you get started with the next steps, you might want to check out onto a new branch. To get a model in dbt Lightdash-ready, we need to define all of the columns that we want to explore in Lightdash. We’ve made this really easy to do using our CLI tool and the command: Copy Ask AI\\n\\nlightdash dbt run -s my_model\\n\\ndbt Projects - Lightdash\\n\\nSource: https://docs.lightdash.com/references/dbt-projects\\n\\nLightdash home page Search... Ctrl KAsk AI Search... Navigation Integrations dbt Projects\\n\\nIntroduction\\n\\nWelcome to Lightdash\\n\\nSetting up a new project\\n\\nExplore and analyze\\n\\nQuickstart\\n\\nGuides\\n\\nReference\\n\\nBuild your semantic layer\\n\\nDeveloper quickstart\\n\\nCLI quickstart\\n\\nGuides\\n\\nReference\\n\\nWorkspace and user management\\n\\nGuides\\n\\nReference\\n\\nIntegrations\\n\\nEmbedding and SDKs\\n\\nEmbedding quickstart\\n\\nEmbedding reference\\n\\nSelf-hosting and deployment\\n\\nSelf-Host Lightdash\\n\\nLightdash Cloud vs. Self-Hosted\\n\\nUpdating Lightdash\\n\\nCustomize deployment\\n\\nContact\\n\\nOn this page * Syncing your dbt project to Lightdash * 1. Set up continous deployment * 2. Click ŌĆ£Refresh dbtŌĆØ in Lightdash * 3. Push code from the CLI * dbt project settings * Environment variables\\n\\nLightdash supports dbt v1.4.0 and above. If you are using an older version of dbt, you will need to upgrade to sync your project to Lightdash\\n\\nWhat are Tables?\\n\\nTables are the starting point to any data exploration in Lightdash - they’re the data in Lightdash that you can query. The beauty of Lightdash is that we’re pretty well synced with your dbt project. So, in Lightdash, Tables actually come from dbt models that have been defined in your dbt project’s YAML files. If your dbt model has been defined in a YAML file, it will appear in Lightdash as a Table. Not sure what a YAML file is? Check out dbt’s docs about model properties to learn more about adding YAML files for your dbt models.\\n\\nAdding Tables to your Lightdash project using the CLI\\n\\nStep 1. Install the Lightdash CLI\\n\\nSyncing your dbt project to Lightdash\\n\\nYou can sync your dbt project code with Lightdash in a few different ways. We recommend everyone set up continuous deployment, but you can also refresh in the Lightdash app or deploy from the CLI.\\n\\n1. Set up continous deployment\\n\\nRead how to do that and check out our example workflow files.\\n\\n2. Click ŌĆ£Refresh dbtŌĆØ in Lightdash\\n\\nThe button can be found on the Query from tables page. If youŌĆÖre using a git connection (like GitHub, Gitlab or Bitbucket), youŌĆÖll need to push + merge your changes to the branch that your Lightdash project is connected to before you pressRefresh dbt. If youŌĆÖve made any changes to the underlying data (for example, adding a new column in your model.sql file or changing the SQL logic of a dimension), then you need to run: dbt run -m yourmodel before you click Refresh dbt in Lightdash.\\n\\n3. Push code from the CLI\"}}}], \"role\": \"user\"}]}",
+      "gcp.vertex.agent.llm_response": "{\"content\":{\"parts\":[{\"text\":\"In Lightdash, you can integrate with dbt in several ways:\\n\\n1.  **Using the Lightdash CLI:** This is the recommended method for developing your dbt + Lightdash project.\\n    *   **Install the Lightdash CLI:** Follow the provided guide to install and set it up.\\n    *   **Add Tables to Lightdash:** Use the command `lightdash dbt run -s your_model` to make a dbt model ready for Lightdash. This command helps in defining the columns you want to explore in Lightdash.\\n\\n2.  **Syncing your dbt project to Lightdash:**\\n    *   **Continuous Deployment:** Set up continuous deployment for a seamless sync. You can find example workflow files for this.\\n    *   **Refresh in Lightdash App:** Navigate to the \\\"Query from tables\\\" page and click the \\\"Refresh dbt\\\" button. If you're using a Git connection, ensure you push and merge your changes to the connected branch before refreshing. If you've altered the underlying data (e.g., added a column or changed SQL logic), run `dbt run -m yourmodel` before clicking \\\"Refresh dbt.\\\"\\n    *   **Deploy from the CLI:** You can also push code updates from the CLI.\\n\\n**Important Notes:**\\n\\n*   Lightdash supports dbt versions 1.4.0 and above. You'll need to upgrade if you're using an older version.\\n*   In Lightdash, \\\"Tables\\\" are derived from dbt models that are defined in your dbt project's YAML files. If a dbt model has a YAML file definition, it will appear as a Table in Lightdash.\"}],\"role\":\"model\"},\"partial\":false,\"usage_metadata\":{\"candidates_token_count\":354,\"prompt_token_count\":986,\"total_token_count\":1340}}",
+      "gen_ai.usage.input_tokens": 986,
+      "gen_ai.usage.output_tokens": 1340
+    },
+    "parent_span_id": 5760490209297376000
+  },
+  {
+    "name": "agent_run [root_agent]",
+    "span_id": 5760490209297376000,
+    "trace_id": 2.695655433345497e+38,
+    "start_time": 1754209839554807600,
+    "end_time": 1754209842413704000,
+    "attributes": {},
+    "parent_span_id": 1216228646509483800
+  },
+  {
+    "name": "invocation",
+    "span_id": 1216228646509483800,
+    "trace_id": 2.695655433345497e+38,
+    "start_time": 1754209839553673000,
+    "end_time": 1754209842413802800,
+    "attributes": {},
+    "parent_span_id": null
+  }
+]

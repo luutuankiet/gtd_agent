@@ -9,7 +9,7 @@ The effectiveness of your RAG system heavily relies on how well these documents 
 *   **Increased Latency & Cost:** Larger chunks mean more tokens processed by the LLM, increasing inference time and computational costs.
 *   **Hallucinations:** If the retrieved context is poor, the LLM might generate responses that are not grounded in the provided documents.
 
-Our current RAG setup, as defined in [`gtd_agent/tools.py`](gtd_agent/tools.py), uses `langchain_text_splitters.RecursiveCharacterTextSplitter` with a `chunk_size` of 1000 characters and a `chunk_overlap` of 100 characters. While this is a common starting point, its optimality for our specific use case (a coding assistant for Lightdash semantic models) needs to be rigorously confirmed.
+Our current RAG setup, as defined in [`gtd_agent/tools.py`](../gtd_agent/tools.py), uses `langchain_text_splitters.RecursiveCharacterTextSplitter` with a `chunk_size` of 1000 characters and a `chunk_overlap` of 100 characters. While this is a common starting point, its optimality for our specific use case (a coding assistant for Lightdash semantic models) needs to be rigorously confirmed.
 
 ## Why Evaluation is Necessary
 
@@ -71,12 +71,50 @@ Chunking optimization is not a one-time task. It's an iterative process:
 
 ## Conclusion
 
-By following these detailed steps, engineers can systematically evaluate and optimize the chunking technique for their RAG systems. This rigorous approach ensures that the RAG agent is built on a solid foundation, leading to more accurate, relevant, and efficient responses, ultimately enhancing the user experience. 
+By following these detailed steps, engineers can systematically evaluate and optimize the chunking technique for their RAG systems. This rigorous approach ensures that the RAG agent is built on a solid foundation, leading to more accurate, relevant, and efficient responses, ultimately enhancing the user experience.
 
+## Current RAG Setup in Action: A Session Walkthrough
+
+To illustrate the current RAG setup's functionality, let's walk through a recent interaction with the agent. This example demonstrates how our Google ADK agent leverages the `retrieve_documents` tool to access information from the ChromaDB vector store and then uses that context to generate a grounded response.
+
+For the full JSON session data, please refer to [`sample_rag_session.json`](sample_rag_session.json).
+
+```
+User Query: "in lightdash what are some ways to integrate with dbt ?"
+
+Agent's Action: The agent used the 'retrieve_documents' tool.
+Tool Input (Query): "integrations with dbt in Lightdash"
+
+Tool Output (Retrieved Documents - summarized for readability):
+The tool returned relevant document chunks from 'https://docs.lightdash.com/references/dbt-projects'.
+These chunks contained information about:
+- Installing and using the Lightdash CLI for dbt projects.
+- Methods for syncing dbt projects to Lightdash (continuous deployment, refreshing in app, deploying from CLI).
+- Lightdash compatibility with dbt versions (1.4.0+) and how dbt models in YAML become 'Tables'.
+
+Agent's Final Response:
+"In Lightdash, you can integrate with dbt in several ways:
+
+1.  **Using the Lightdash CLI:** This is the recommended method for developing your dbt + Lightdash project.
+    *   **Install the Lightdash CLI:** Follow the provided guide to install and set it up.
+    *   **Add Tables to Lightdash:** Use the command `lightdash dbt run -s your_model` to make a dbt model ready for Lightdash. This command helps in defining the columns you want to explore in Lightdash.
+
+2.  **Syncing your dbt project to Lightdash:**
+    *   **Continuous Deployment:** Set up continuous deployment for a seamless sync. You can find example workflow files for this.
+    *   **Refresh in Lightdash App:** Navigate to the "Query from tables" page and click the "Refresh dbt" button. If you're using a Git connection, ensure you push and merge your changes to the connected branch before refreshing. If you've altered the underlying data (e.g., added a column or changed SQL logic), run `dbt run -m yourmodel` before clicking "Refresh dbt."
+    *   **Deploy from the CLI:** You can also push code updates from the CLI.
+
+**Important Notes:**
+
+*   Lightdash supports dbt versions 1.4.0 and above. You'll need to upgrade if you're using an older version.
+*   In Lightdash, "Tables" are derived from dbt models that are defined in your dbt project's YAML files. If a dbt model has a YAML file definition, it will appear as a Table in Lightdash."
+```
+
+This walkthrough demonstrates that the current RAG setup is functional, with the agent successfully calling the retrieval tool, processing its output, and generating a relevant, grounded response. This provides a solid foundation for further evaluation and optimization of the chunking strategy.
 
 ## Appendix: Current ChromaDB Setup and Chunking Implementation
 
-This section provides the detailed implementation of our current ChromaDB vector store setup and the document chunking strategy, as found in [`gtd_agent/tools.py`](gtd_agent/tools.py). This information is crucial for reproducibility and for understanding the baseline against which future chunking optimizations will be evaluated.
+This section provides the detailed implementation of our current ChromaDB vector store setup and the document chunking strategy, as found in [`gtd_agent/tools.py`](../gtd_agent/tools.py). This information is crucial for reproducibility and for understanding the baseline against which future chunking optimizations will be evaluated.
 
 ### 1. Local ChromaDB Setup
 
