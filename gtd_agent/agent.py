@@ -1,12 +1,38 @@
 import os
 from google.adk.agents import LlmAgent
 from google.adk.agents.callback_context import CallbackContext
-# from .prompts import return_instructions_root
+from google.adk.tools import FunctionTool
+from langchain_chroma import Chroma
+from langchain_huggingface import HuggingFaceEmbeddings
 from datetime import date
+# from .prompts import return_instructions_root
 # from .sub_agents.query_generator.agent import query_generator_agent
 # from .sub_agents.data_summarizer.agent import data_summarizer_agent
 # from .sub_agents.query_generator.tools import read_business_context
 from gtd_agent.patched_lite_llm import LiteLlm
+import asyncio
+import os
+
+# Initialize ChromaDB and embeddings globally or pass them around
+# This assumes your ChromaDB is already populated at './chroma_langchain_rag_db'
+# and uses the same embeddings as in gtd_agent/tools.py
+model_name = "sentence-transformers/all-MiniLM-L6-v2"
+model_kwargs = {'device': 'cpu'}
+encode_kwargs = {'normalize_embeddings': False}
+embeddings = HuggingFaceEmbeddings(
+    model_name=model_name,
+    model_kwargs=model_kwargs,
+    encode_kwargs=encode_kwargs
+)
+vector_store = Chroma(persist_directory='./gtd_agent/chroma_langchain_rag_db', embedding_function=embeddings)
+
+async def retrieve_documents(query: str) -> str:
+    """
+    Retrieves relevant documents from the ChromaDB vector store based on the query.
+    """
+    docs = vector_store.similarity_search(query)
+    return "\n\n".join([doc.page_content for doc in docs])
+
 
 def update_conversation_history(callback_context: CallbackContext):
     """
@@ -35,7 +61,7 @@ date_today = date.today()
 
 root_agent = LlmAgent(
     model=LiteLlm(
-        model=os.getenv("MODEL_ROOT"),
+        model=os.getenv("MODEL_ROOT","openrouter/google/gemini-2.5-flash-lite-preview-06-17"),
         max_retries=5,
         initial_delay=2.0,
         max_delay=60.0,
@@ -45,7 +71,12 @@ root_agent = LlmAgent(
     # model=os.getenv("LOOKER_AGENT_MODEL"),
     name='root_agent',
     description='I am an assistant.',
-    instruction="you are a helpful assistant."
+    instruction="""You are a helpful assistant.
+    You have access to a document retrieval tool. Use this tool when the user asks a question that requires information from the knowledge base.
+    For example, if the user asks about a specific concept or detail, use the `retrieve_documents` tool with a relevant query to get information from the documents.
+    Then, use the retrieved information to answer the user's question.
+    """,
+    tools=[retrieve_documents],
     # instruction=return_instructions_root(),
     # sub_agents=[
     #     query_generator_agent,
