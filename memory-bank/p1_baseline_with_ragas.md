@@ -1,99 +1,109 @@
 ### **Action Plan: Baseline Evaluation for the Document Support Agent**
 
-**Objective:** To establish a robust, quantitative performance baseline for our RAG-based **Document Support Agent**. This plan is tailored to the current implementation using Google's Agent Development Kit (ADK), LiteLLM, and ChromaDB. The final scores will serve as the benchmark for all future optimizations.
+**Objective:** To establish a robust, quantitative performance baseline for our RAG-based **Document Support Agent**. This updated plan leverages the `ragas` TestsetGenerator to rapidly create a high-quality evaluation dataset, moving from a manual process to a more scalable, code-first approach.
 
-### **Phase 0: Foundation & Setup**
+### **Phase 1: Automated Test Set Generation (P1 / Milestone 1)**
 
-This phase ensures the project environment is correctly configured based on the existing agent.py and tools.py files.
+This phase focuses on quickly generating a high-quality, human-validated test set using the default capabilities of the `ragas` TestsetGenerator. The goal is to get a reliable baseline score with minimal manual effort.
 
-1. **Environment Configuration:**  
-   * Create a dedicated Python virtual environment.  
-   * Install all necessary libraries:  
-     pip install google-cloud-aiplatform langchain chromadb litellm openrouter \\  
-     langchain-huggingface sentence-transformers "unstructured\[md\]" tiktoken \\  
-     ragas datasets
+1.  **Environment Configuration:**
+    *   Create a dedicated Python virtual environment.
+    *   Install all necessary libraries:
+        ```bash
+        pip install google-cloud-aiplatform langchain chromadb litellm openrouter \
+        langchain-huggingface sentence-transformers "unstructured[md]" tiktoken \
+        ragas datasets python-dotenv
+        ```
+    *   Set up a `.env` file with your `OPENROUTER_API_KEY`.
 
-   * Set up environment variables for OPENROUTER\_API\_KEY and any other keys required by LiteLLM.  
-2. **Data Loading & Ingestion:**  
-   * Ensure the tools.py script has been run successfully to populate the chroma\_langchain\_rag\_db directory.  
-   * This script loads documents from the ../docs directory, chunks them, and creates the vector store using the sentence-transformers/all-MiniLM-L6-v2 embedding model.
+2.  **Generate Candidate Dataset:**
+    *   **Action:** Use the provided script (adapted from `WIP_p1.md`) to run the `ragas` `TestsetGenerator` on a small, representative subset of the documentation (e.g., 5-10 key files in a `docs_subset/` directory).
+    *   **Rationale:** This generates a diverse set of ~20 questions (simple, complex, multi-hop) automatically, saving significant manual effort compared to writing questions by hand.
+    *   **Script:**
+        ```python
+        import os
+        from dotenv import load_dotenv
+        from ragas.testset import TestsetGenerator
+        from ragas.llms import LangchainLLMWrapper
+        from ragas.embeddings import LangchainEmbeddingsWrapper
+        from langchain_openai import ChatOpenAI
+        from langchain_huggingface import HuggingFaceEmbeddings
+        from langchain_community.document_loaders import DirectoryLoader
+        from datasets import Dataset
 
-**Mentor's Note:** A clean, isolated environment prevents dependency conflicts. This setup mirrors the existing code, ensuring the evaluation is performed on the exact same foundation.
+        load_dotenv()
+        os.environ['OPENAI_API_KEY'] = os.getenv("OPENROUTER_API_KEY", "")
+        MODEL = os.getenv("OPENROUTER_MODEL", "google/gemini-2.5-flash")
 
-### **Phase 1: Building the Evaluation Framework**
+        generator_llm = LangchainLLMWrapper(ChatOpenAI(model=MODEL, base_url="https://openrouter.ai/api/v1"))
+        embedding_model = LangchainEmbeddingsWrapper(HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2"))
 
-This is the most critical manual phase. The quality of our evaluation depends entirely on the quality of our test data.
+        generator = TestsetGenerator(llm=generator_llm, embedding_model=embedding_model)
 
-1. **Create the "Golden Dataset":**  
-   * **Task:** Manually review the Lightdash documentation and create a diverse set of 20-30 realistic questions. These questions should cover a range of topics and complexities.  
-   * **Diversity is Key:** Include:  
-     * **Factual Questions:** "What command is used to deploy a Lightdash project?"  
-     * **"How-to" Questions:** "How do I connect a new dbt project?"  
-     * **Conceptual Questions:** "What is the difference between a metric and a dimension?"  
-     * **Negative Questions:** "Can Lightdash connect to a Google Sheet?" (where the answer is likely no).  
-   * **For each question, write a concise, accurate ground\_truth answer.** This is the ideal response you expect from a perfect agent.  
-2. **Structure the Dataset:**  
-   * Store this data in a structured format, like a JSON or CSV file. This file will be the single source of truth for our evaluation.  
-   * Example structure for one entry:  
-     {  
-       "question": "How do I connect a new dbt project?",  
-       "ground\_truth": "To connect a new dbt project, you need to configure the connection details in your \`profiles.yml\` file and then reference that profile in your Lightdash project settings under 'dbt Connection'."  
-     }
+        loader = DirectoryLoader("./docs_subset", glob="**/*.md")
+        docs = loader.load()
 
-**Mentor's Note:** This dataset is our scientific control. Without a high-quality, human-verified set of questions and answers, any scores from RAGAS are meaningless. Time spent here is a high-leverage activity.
+        testset = generator.generate_with_langchain_docs(documents=docs, test_size=20)
+        df = testset.to_pandas()
+        output_file = "milestone1_golden_dataset_candidate.jsonl"
+        df.to_json(output_file, orient="records", lines=True)
+        print(f"Successfully generated candidate test set to {output_file}")
+        ```
 
-### **Phase 2: Aligning the RAG Pipeline for Evaluation**
+3.  **Human Review & Refinement:**
+    *   **Task:** Manually review the generated `milestone1_golden_dataset_candidate.jsonl` file.
+    *   **Goal:** Edit, discard, or approve each generated question, answer, and context to ensure high quality and accuracy. This human-in-the-loop step is critical for creating a trustworthy evaluation set.
+    *   **Outcome:** The reviewed file becomes the official **"Golden Dataset"**.
 
-This phase confirms the RAG logic to be tested, based on the current agent.py implementation.
+**Mentor's Note:** The `TestsetGenerator` is powerful out-of-the-box. By leveraging it, we replace the tedious manual task of writing questions and ground truths with a more efficient "review and refine" workflow. This gets us to a high-quality baseline faster.
 
-1. **Chunking Strategy:**  
-   * The current implementation in tools.py uses RecursiveCharacterTextSplitter with chunk\_size=1000 and chunk\_overlap=100. This is a solid semantic chunking strategy and will be the basis of our evaluation.  
-2. **Vector Store & Embeddings:**  
-   * The vector store is a Chroma instance persisted at ./gtd\_agent/chroma\_langchain\_rag\_db.  
-   * The embedding model is HuggingFaceEmbeddings("sentence-transformers/all-MiniLM-L6-v2"). The evaluation will proceed with this model.  
-3. **Retrieval Mechanism (Baseline):**  
-   * The current agent.py implements a **direct similarity search retriever**. The retrieve\_documents tool performs a standard vector\_store.similarity\_search(query).  
-   * **This initial baseline evaluation will be conducted using this simple retrieval method.** This allows us to measure the performance of the most straightforward RAG approach first.
+### **Phase 2: Execute Baseline Evaluation**
 
-**Mentor's Note:** The Kapa.ai blog highlights that a more advanced **retrieve-then-rerank** model is a key best practice. We are consciously deferring this. The goal here is to get a score for our *current* simple retriever. The results will then inform whether implementing a re-ranker is the highest-priority next step for optimization.
+This phase uses the validated "Golden Dataset" to benchmark the agent's current performance.
 
-### **Phase 3: Execution & Analysis**
+1.  **Align RAG Pipeline:**
+    *   **Chunking:** The existing `RecursiveCharacterTextSplitter` (chunk_size=1000, chunk_overlap=100) in `tools.py` will be used.
+    *   **Embeddings:** The evaluation will use the `sentence-transformers/all-MiniLM-L6-v2` model, consistent with the agent's setup.
+    *   **Retrieval:** The baseline test will use the simple **similarity search** retriever currently in `agent.py`.
 
-Now we run the pipeline and gather our baseline metrics.
+2.  **Generate Agent Responses:**
+    *   Write a script to iterate through the validated "Golden Dataset".
+    *   For each question, run the agent and capture two key outputs:
+        1.  `contexts`: The `page_content` of the documents returned by the `retrieve_documents` tool.
+        2.  `answer`: The final generated answer from the agent.
+    *   Store these outputs alongside the original `question` and `ground_truth`.
 
-1. **Generate Agent Responses:**  
-   * Write a script that iterates through your "Golden Dataset" from Phase 1\.  
-   * For each question:  
-     1. Instantiate and run the root\_agent from agent.py.  
-     2. The agent will call the retrieve\_documents tool. It is critical to **capture the page\_content of the documents returned by this tool** to use as the contexts for RAGAS. This may require temporarily modifying the retrieve\_documents function or the agent callback to log this information.  
-     3. Capture the final generated answer from the agent's response.  
-   * Append the captured contexts and answer to your dataset.  
-2. **Evaluate with RAGAS:**  
-   * Load your fully populated dataset (now with question, ground\_truth, answer, and contexts) into a Hugging Face Dataset object.  
-   * Run the ragas.evaluate() function.  
-   * **Code Snippet:**  
-     from datasets import Dataset  
-     from ragas import evaluate  
-     from ragas.metrics import (  
-         faithfulness, answer\_relevancy, context\_recall, context\_precision  
-     )
+3.  **Evaluate with RAGAS:**
+    *   Load the final, populated dataset into a Hugging Face `Dataset` object.
+    *   Run `ragas.evaluate()` to calculate the core metrics.
+    *   **Code Snippet:**
+        ```python
+        from datasets import Dataset
+        from ragas import evaluate
+        from ragas.metrics import faithfulness, answer_relevancy, context_recall, context_precision
 
-     \# Assume 'final\_dataset\_list' is your list of dictionaries  
-     dataset \= Dataset.from\_list(final\_dataset\_list)
+        # Assume 'final_dataset_list' is your list of dicts with
+        # ['question', 'ground_truth', 'answer', 'contexts']
+        dataset = Dataset.from_list(final_dataset_list)
 
-     result \= evaluate(  
-         dataset=dataset,  
-         metrics=\[  
-             faithfulness, answer\_relevancy, context\_precision, context\_recall  
-         \],  
-     )
+        result = evaluate(
+            dataset=dataset,
+            metrics=[faithfulness, answer_relevancy, context_precision, context_recall],
+        )
+        print(result)
+        ```
 
-### **Phase 4: Documentation & Next Steps**
+### **Phase 3: Documentation & Next Steps (P2 / Milestone 2)**
 
-1. **Document the Baseline:**  
-   * Create a new file in the repository named EVALUATION\_RESULTS.md.  
-   * Record the final RAGAS scores from the result dictionary in a clear table.  
-   * Include the date of the evaluation and the specific model used (openrouter/google/gemini-2.5-flash-lite-preview-06-17).  
-2. **Define Next Steps:**  
-   * Analyze the scores. Is context\_precision low? This would strongly suggest that implementing a **re-ranking stage** is the most impactful next step. Is faithfulness low? The generation prompt in agent.py might need improvement.  
-   * These scores will provide the data-driven direction for the next phase of optimization.
+1.  **Document the Baseline:**
+    *   Create `EVALUATION_RESULTS.md`.
+    *   Record the RAGAS scores, evaluation date, and the specific LLM used.
+
+2.  **Define Next Steps:**
+    *   **Analyze Scores:** Use the baseline scores to identify the weakest link in the RAG pipeline.
+        *   Low `context_precision` or `context_recall` points to a need for a **re-ranker** or improved retrieval strategies.
+        *   Low `faithfulness` suggests prompt engineering on the generator agent is needed.
+    *   **Scale and Stress-Test:** Run the generator on the **entire document set** to create a larger, more challenging test set (100+ questions). Use this to find knowledge gaps and guide optimization.
+    *   **Introduce Advanced Customizations:** Experiment with more powerful models for specific parts of the generation pipeline (e.g., a `pro` model for the multi-hop synthesizer) to create even more difficult tests.
+
+This updated plan provides a data-driven path to systematically improving the agent's performance.

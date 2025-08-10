@@ -19,7 +19,7 @@ model_kwargs=model_kwargs,
 encode_kwargs=encode_kwargs
 )
 
-path = "./docs"
+path = "samples"
 loader = DirectoryLoader(path, glob="*.md")
 docs = loader.load()
 #%%
@@ -37,7 +37,7 @@ generator_embeddings = LangchainEmbeddingsWrapper(embeddings)
 
 
 generator = TestsetGenerator(llm=generator_llm, embedding_model=generator_embeddings)
-dataset = generator.generate_with_langchain_docs(docs, testset_size=5)
+dataset = generator.generate_with_langchain_docs(docs, testset_size=10)
 dataset.to_pandas().to_json("testset.jsonl",
                             indent=4,
                             index=False,

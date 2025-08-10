@@ -13,17 +13,10 @@ This file tracks the project's progress using a task list format.
 - 2025-07-30 01:33:18 - User task "1.1 Understand RAG Workflow and Chroma DB Schema" added to the plan.
 ## Current Tasks
 
-*   2025-08-10 03:10:00 - **P1: Baseline Evaluation with Ragas**
-    - [x] Phase 0: Foundation & Setup
-    - [ ] Phase 1: Building the Evaluation Framework
-    - [ ] Phase 2: Aligning the RAG Pipeline for Evaluation
-    - [ ] Phase 3: Execution & Analysis
-    - [ ] Phase 4: Documentation & Next Steps
-*   2025-08-10 03:10:00 - **P2: RAG Chunking Evaluation**
-    - [ ] Define an Evaluation Dataset
-    - [ ] Utilize RAG Evaluation Metrics and Tools
-    - [ ] Experiment with Chunking Parameters
-    - [ ] Iterative Testing and Refinement
+*   2025-08-10 11:06:00 - **P1: Baseline Evaluation with Ragas (Updated Plan)**
+    - [x] Phase 1: Automated Test Set Generation (P1 / Milestone 1) - Plan Defined
+    - [ ] Phase 2: Execute Baseline Evaluation
+    - [ ] Phase 3: Documentation & Next Steps (P2 / Milestone 2)
 
 ## Next Steps
 
